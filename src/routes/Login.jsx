@@ -25,11 +25,11 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post('/login', formData);
+      const response = await api.post('/login/', formData);
       
-      // Guardar token y datos de usuario
-      const { token, user } = response.data;
-      localStorage.setItem('authToken', token);
+      const { access, refresh, user } = response.data;
+      localStorage.setItem('authToken', access);
+      localStorage.setItem('refreshToken', refresh);
       localStorage.setItem('userData', JSON.stringify(user));
       
       // Redirigir al dashboard

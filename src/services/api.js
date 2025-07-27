@@ -1,38 +1,50 @@
 import axios from 'axios';
 
-// Create an Axios instance with default configuration
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: 'http://localhost:8000/api',
 });
 
-// Add a request interceptor to include the auth token if available
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// Interceptor para añadir el token de acceso (access token)
+api.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem('authToken');
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
-);
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
 
-// Add a response interceptor to handle errors globally
+// Interceptor para manejar errores 401 (token expirado)
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Handle unauthorized access (token expired, etc.)
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
-      // You might want to redirect to login here if you have access to history
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Intentar refrescar el token
+        const refreshToken = localStorage.getItem('refreshToken');
+        const response = await axios.post('http://localhost:8000/api/login/refresh/', {
+          refresh: refreshToken
+        });
+        
+        const { access } = response.data;
+        localStorage.setItem('authToken', access);
+        originalRequest.headers.Authorization = `Bearer ${access}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Si el refresh falla, redirigir a login
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userData');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
     }
+    
     return Promise.reject(error);
   }
 );
