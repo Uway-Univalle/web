@@ -10,9 +10,13 @@ function App() {
 
       <main className="flex-1 flex flex-col md:flex-row justify-center items-center px-8 py-20 gap-40">
         <div className="text-center md:text-left">
-          <h1 className="text-6xl font-extrabold mb-4 underline decoration-blue-500">Ugüee</h1>
-          <button className="mt-4 px-4 py-2 border-2 border-purple-600 rounded-full flex items-center gap-2 hover:bg-purple-50">
+          <h1 className="text-9xl font-extrabold mb-4">Ugüee</h1>
+          <button className="mt-4 px-4 py-2 border-2 border-purple-600 rounded-full flex items-center gap-2 hover:bg-purple-50 m-auto">
             Muévete seguro
+              <svg width="30" height="30" viewBox="0 0 51 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M44.6144 14.95C44.5791 14.5859 44.4538 14.2369 44.2501 13.9356C44.0464 13.6343 43.7711 13.3907 43.4499 13.2275L26.4499 4.56084C26.1547 4.41021 25.8291 4.33179 25.499 4.33179C25.1689 4.33179 24.8433 4.41021 24.5481 4.56084L7.54806 13.2275C7.22777 13.3916 6.9533 13.6356 6.75011 13.9367C6.54691 14.2378 6.42156 14.5863 6.38569 14.95C6.36231 15.1818 4.34356 38.2785 24.6373 47.4803C24.9085 47.6051 25.2026 47.6696 25.5001 47.6696C25.7976 47.6696 26.0917 47.6051 26.3628 47.4803C46.6566 38.2785 44.6378 15.184 44.6144 14.95ZM25.5001 43.1102C11.1159 36.0208 10.4359 20.891 10.5528 16.5425L25.5001 8.92234L40.4367 16.5382C40.5153 20.8477 39.7397 36.0772 25.5001 43.1102Z" fill="#A728CA"/>
+                <path d="M23.3751 27.2697L18.5025 22.3015L15.4977 25.3652L23.3751 33.397L35.5025 21.0319L32.4977 17.9682L23.3751 27.2697Z" fill="#A728CA"/>
+              </svg>
           </button>
         </div>
 
