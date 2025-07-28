@@ -97,8 +97,8 @@ const Login = () => {
 
           <div className="mt-4 text-sm text-center">
             ¿No tienes una cuenta?{" "}
-            <a href="/register" className="text-[#8A20A7] underline hover:text-purple-800">
-              Regístrate aquí
+            <a href="/" className="text-[#8A20A7] underline hover:text-purple-800">
+              Vuelve a la página de inicio
             </a>
           </div>
         </div>

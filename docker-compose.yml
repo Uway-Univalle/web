@@ -2,5 +2,9 @@ services:
   vite-app:
     build: .
     ports:
-      - "3000:80"
-    container_name: vite-react-app
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    container_name: vite-react-dev
+    command: npm run dev -- --host
