@@ -2,12 +2,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { ShieldCheck } from 'lucide-react';
+import { useEffect } from 'react';
 
 const Login = () => {
+
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Suponiendo que usas localStorage para guardar el token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, []);
+
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

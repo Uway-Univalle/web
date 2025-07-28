@@ -1,6 +1,18 @@
 import "../index.css";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function App() {
+function Home() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Suponiendo que usas localStorage para guardar el token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-[#8A20A7] flex flex-col">
       {/* Navbar */}
@@ -36,8 +48,15 @@ function App() {
           </a>
         </div>
       </main>
+
+      {/* Sección adicional para instituciones */}
+      <footer className="p-4 text-center border-t border-gray-200">
+        <p className="text-[#8A20A7]">
+          ¿Eres institución? <a href="/register-college" className="font-semibold underline">Regístrate</a>
+        </p>
+      </footer>
     </div>
   );
 }
 
-export default App;
+export default Home;

@@ -6,8 +6,17 @@ import { ShieldCheck, Upload, Car } from 'lucide-react';
 import { Combobox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
+
 const DriverRegister = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Suponiendo que usas localStorage para guardar el token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     first_name: '',

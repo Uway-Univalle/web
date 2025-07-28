@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const CollegeAdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -8,6 +10,10 @@ const CollegeAdminDashboard = () => {
   const [searchVehicle, setSearchVehicle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [reportMessage, setReportMessage] = useState('');
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const username = JSON.parse(localStorage.getItem('userData'))?.first_name || 'Administrador';
   const userCollegeId = JSON.parse(localStorage.getItem('userData'))?.college;
@@ -92,6 +98,40 @@ const CollegeAdminDashboard = () => {
     return 'Usuario';
   };
 
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleGenerateReport = async () => {
+    if (!userCollegeId) {
+      setError('No se pudo identificar la universidad');
+      return;
+    }
+
+    setIsGeneratingReport(true);
+    setReportMessage('');
+    
+    try {
+      const response = await api.post(
+        `/colleges/${userCollegeId}/generate-college-report/`,
+        {
+          start_date: formatDate(startDate),
+          end_date: formatDate(endDate)
+        }
+      );
+      
+      setReportMessage('El reporte se generará y enviará por correo en breve.');
+    } catch (err) {
+      setError('Error al generar el reporte');
+      console.error(err);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   const filteredUsers = users.filter(user =>
     `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchUser.toLowerCase()) ||
     user.email.toLowerCase().includes(searchUser.toLowerCase()) ||
@@ -137,6 +177,52 @@ const CollegeAdminDashboard = () => {
       </header>
 
       <main className="max-w-6xl mx-auto">
+        {/* Sección de generación de reportes */}
+        <div className="bg-white p-6 rounded-lg shadow mb-6 col-span-2">
+          <h2 className="text-xl font-semibold mb-4 text-center">Generar Reporte</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de inicio</label>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de fin</label>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+            <div>
+              <button
+                onClick={handleGenerateReport}
+                disabled={isGeneratingReport}
+                className={`w-full px-4 py-2 rounded-lg text-white font-medium ${isGeneratingReport ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'} transition`}
+              >
+                {isGeneratingReport ? 'Generando...' : 'Generar Reporte'}
+              </button>
+            </div>
+          </div>
+          {reportMessage && (
+            <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+              {reportMessage}
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Sección de usuarios */}
           <div className="bg-white p-4 rounded-lg shadow">

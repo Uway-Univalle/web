@@ -9,6 +9,14 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 const Register = () => {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Suponiendo que usas localStorage para guardar el token
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      navigate('/dashboard');
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -24,6 +32,9 @@ const Register = () => {
   });
 
   const [colleges, setColleges] = useState([]);
+  const [verifiedColleges, setVerifiedColleges] = useState([]);
+  const [filteredColleges, setFilteredColleges] = useState([]);
+
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingColleges, setIsLoadingColleges] = useState(true);
@@ -86,10 +97,16 @@ const Register = () => {
 
   useEffect(() => {
     api.get('/colleges/')
-      .then(res => setColleges(res.data))
+      .then(res => {
+        const verified = res.data.filter(college => college.is_verified === true);
+        setColleges(res.data);
+        setVerifiedColleges(verified);
+        setFilteredColleges(verified);
+      })
       .catch(() => setError('No se pudieron cargar las universidades'))
       .finally(() => setIsLoadingColleges(false));
   }, []);
+
 
   return (
     <div className="min-h-screen bg-white text-[#8A20A7] flex flex-col">
@@ -123,62 +140,62 @@ const Register = () => {
             <input type="text" name="address" placeholder="Dirección" value={formData.address} onChange={handleChange} className="input" />
             <input type="text" name="code" placeholder="Código de estudiante" value={formData.code} onChange={handleChange} className="input" />
 
-<Combobox value={colleges.find(c => c.college_id == formData.college) || null} onChange={(value) =>
-  setFormData(prev => ({ ...prev, college: value?.college_id || '' }))
-}>
-  <div className="relative">
-    <Combobox.Input
-      className="input"
-      displayValue={(college) => college?.name || ''}
-      onChange={(event) =>
-        setColleges(
-          event.target.value === ''
-            ? colleges
-            : colleges.filter((college) =>
-                college.name.toLowerCase().includes(event.target.value.toLowerCase())
-              )
-        )
-      }
-      placeholder="Selecciona una universidad"
-    />
-    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-      <ChevronUpDownIcon className="h-5 w-5 text-purple-500" aria-hidden="true" />
-    </Combobox.Button>
+            <Combobox
+              value={verifiedColleges.find(c => c.college_id == formData.college) || null}
+              onChange={(value) => setFormData(prev => ({ ...prev, college: value?.college_id || '' }))}
+              disabled={isLoadingColleges}
+            >
+              <div className="relative">
+                <Combobox.Input
+                  className="input"
+                  displayValue={(college) => college?.name || ''}
+                  onChange={(event) => {
+                    const filtered = verifiedColleges.filter(college =>
+                      college.name.toLowerCase().includes(event.target.value.toLowerCase())
+                    );
+                    setFilteredColleges(event.target.value === '' ? verifiedColleges : filtered);
+                  }}
+                  placeholder="Selecciona una universidad verificada"
+                />
+                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon className="h-5 w-5 text-purple-500" aria-hidden="true" />
+                </Combobox.Button>
 
-    <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white border border-purple-300 text-sm shadow-lg focus:outline-none">
-      {colleges.length === 0 ? (
-        <div className="relative cursor-default select-none px-4 py-2 text-gray-500">
-          No hay resultados
-        </div>
-      ) : (
-        colleges.map((college) => (
-          <Combobox.Option
-            key={college.college_id}
-            className={({ active }) =>
-              `cursor-pointer select-none relative px-4 py-2 ${
-                active ? 'bg-purple-100 text-purple-900' : 'text-gray-700'
-              }`
-            }
-            value={college}
-          >
-            {({ selected, active }) => (
-              <>
-                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                  {college.name}
-                </span>
-                {selected && (
-                  <span className={`absolute inset-y-0 right-4 flex items-center`}>
-                    <CheckIcon className="w-5 h-5 text-[#8A20A7]" aria-hidden="true" />
-                  </span>
-                )}
-              </>
-            )}
-          </Combobox.Option>
-        ))
-      )}
-    </Combobox.Options>
-  </div>
-</Combobox>
+                <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white border border-purple-300 text-sm shadow-lg focus:outline-none">
+                  {filteredColleges.length === 0 ? (
+                    <div className="relative cursor-default select-none px-4 py-2 text-gray-500">
+                      {isLoadingColleges ? 'Cargando universidades...' : 'No hay universidades verificadas'}
+                    </div>
+                  ) : (
+                    filteredColleges.map((college) => (
+                      <Combobox.Option
+                        key={college.college_id}
+                        className={({ active }) =>
+                          `cursor-pointer select-none relative px-4 py-2 ${
+                            active ? 'bg-purple-100 text-purple-900' : 'text-gray-700'
+                          }`
+                        }
+                        value={college}
+                      >
+                        {({ selected }) => (
+                          <>
+                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                              {college.name}
+                            </span>
+                            {selected && (
+                              <span className="absolute inset-y-0 right-4 flex items-center">
+                                <CheckIcon className="w-5 h-5 text-[#8A20A7]" aria-hidden="true" />
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </Combobox.Option>
+                    ))
+                  )}
+                </Combobox.Options>
+              </div>
+            </Combobox>
+
 
 
             <select name="passenger_type" value={formData.passenger_type} onChange={handleChange} className="input">
