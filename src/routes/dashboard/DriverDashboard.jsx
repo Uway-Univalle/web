@@ -217,7 +217,7 @@ const DriverDashboard = () => {
     }
 
     try {
-      const coordinates = points.map(p => [p.longitude, p.latitude]);
+      const coordinates = points.map(p => [p.latitude, p.longitude]);
       const response = await api.post('/routes/full-route/', { coordinates });
       
       const lineCoords = response.data.geometry.map(([lon, lat]) => ({
