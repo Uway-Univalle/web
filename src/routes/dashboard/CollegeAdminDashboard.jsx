@@ -14,6 +14,7 @@ const CollegeAdminDashboard = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [reportMessage, setReportMessage] = useState('');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [userDocuments, setUserDocuments] = useState({}); // {userId: [documents]}
 
   const username = JSON.parse(localStorage.getItem('userData'))?.first_name || 'Administrador';
   const userCollegeId = JSON.parse(localStorage.getItem('userData'))?.college;
@@ -35,8 +36,7 @@ const CollegeAdminDashboard = () => {
 
         // Obtener vehículos no verificados
         const vehiclesResponse = await api.get('/vehicles/unverified/');
-        const filteredVehicles = vehiclesResponse.data
-        
+        const filteredVehicles = vehiclesResponse.data;
         setVehicles(filteredVehicles);
       } catch (err) {
         if (err.response?.status !== 401) {
@@ -50,6 +50,33 @@ const CollegeAdminDashboard = () => {
 
     fetchUnverifiedData();
   }, [userCollegeId]);
+
+  // Función para obtener documentos de un usuario
+  const fetchUserDocuments = async (userId) => {
+    try {
+      const response = await api.get(`/user_documents/${userId}/`);
+      setUserDocuments(prev => ({
+        ...prev,
+        [userId]: response.data
+      }));
+    } catch (err) {
+      console.error('Error al obtener documentos:', err);
+      setUserDocuments(prev => ({
+        ...prev,
+        [userId]: []
+      }));
+    }
+  };
+
+  // Función para manejar la descarga de documentos
+  const handleDownloadDocument = (presignedUrl, fileName) => {
+    const link = document.createElement('a');
+    link.href = presignedUrl;
+    link.setAttribute('download', fileName || 'documento');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleVerifyUser = async (userId) => {
     try {
@@ -255,6 +282,35 @@ const CollegeAdminDashboard = () => {
                         <p className="text-gray-600 text-sm">Documento: {user.personal_id}</p>
                         <p className="text-gray-600 text-sm">Teléfono: {user.phone}</p>
                         <p className="text-gray-600 text-sm">Código: {user.code}</p>
+                        
+                        {/* Botón para cargar documentos */}
+                        <button
+                          onClick={() => fetchUserDocuments(user.id)}
+                          className="mt-2 px-3 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800 hover:bg-blue-200 transition"
+                        >
+                          Mostrar documentos
+                        </button>
+                        
+                        {/* Lista de documentos */}
+                        {userDocuments[user.id] && (
+                          <div className="mt-2">
+                            <p className="text-xs font-medium text-gray-500 mb-1">Documentos:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {userDocuments[user.id].map((doc, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleDownloadDocument(doc.presigned_url, doc.url.split('/').pop())}
+                                  className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800 hover:bg-gray-200 transition"
+                                >
+                                  Documento {index + 1}
+                                </button>
+                              ))}
+                              {userDocuments[user.id].length === 0 && (
+                                <p className="text-xs text-gray-500">No hay documentos</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="flex sm:flex-col gap-2">
                         <button

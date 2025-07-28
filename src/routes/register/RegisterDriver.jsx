@@ -6,12 +6,10 @@ import { ShieldCheck, Upload, Car } from 'lucide-react';
 import { Combobox } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 
-
 const DriverRegister = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Suponiendo que usas localStorage para guardar el token
     const token = localStorage.getItem('authToken');
     if (token) {
       navigate('/dashboard');
@@ -55,7 +53,7 @@ const DriverRegister = () => {
 
       files.forEach(file => {
         newAttachments.push(file);
-        
+
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push({ file, preview: reader.result });
@@ -71,10 +69,10 @@ const DriverRegister = () => {
   const handleRemoveAttachment = (indexToRemove) => {
     const newAttachments = [...formData.attachments];
     const newPreviews = [...attachmentPreviews];
-    
+
     newAttachments.splice(indexToRemove, 1);
     newPreviews.splice(indexToRemove, 1);
-    
+
     setFormData(prev => ({ ...prev, attachments: newAttachments }));
     setAttachmentPreviews(newPreviews);
   };
@@ -83,32 +81,32 @@ const DriverRegister = () => {
 
   const validateForm = () => {
     const required = [
-      'first_name', 'last_name', 'username', 'email', 
-      'personal_id', 'address', 'phone', 'code', 'college', 'password'
+      'first_name', 'last_name', 'username', 'email',
+      'personal_id', 'address', 'phone', 'college', 'password'
     ];
-    
+
     for (const field of required) {
       if (!formData[field]) {
         setError(`El campo ${field.replace('_', ' ')} es requerido`);
         return false;
       }
     }
-    
+
     if (!validateEmail(formData.email)) {
       setError('Correo electrónico inválido');
       return false;
     }
-    
+
     if (formData.password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres');
       return false;
     }
-    
+
     if (formData.attachments.length === 0) {
       setError('Debe subir al menos un documento adjunto');
       return false;
     }
-    
+
     return true;
   };
 
@@ -118,20 +116,14 @@ const DriverRegister = () => {
     setIsLoading(true);
 
     const formDataToSend = new FormData();
-    
+
     // Agregar campos de texto
-    formDataToSend.append('first_name', formData.first_name);
-    formDataToSend.append('last_name', formData.last_name);
-    formDataToSend.append('username', formData.username);
-    formDataToSend.append('email', formData.email);
-    formDataToSend.append('personal_id', formData.personal_id);
-    formDataToSend.append('address', formData.address);
-    formDataToSend.append('phone', formData.phone);
-    formDataToSend.append('code', formData.code);
-    formDataToSend.append('user_type', formData.user_type);
-    formDataToSend.append('college', formData.college);
-    formDataToSend.append('password', formData.password);
-    
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== 'attachments') {
+        formDataToSend.append(key, value);
+      }
+    });
+
     // Agregar archivos adjuntos
     formData.attachments.forEach(file => {
       formDataToSend.append('attachments', file);
@@ -143,7 +135,7 @@ const DriverRegister = () => {
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       if (res.status === 201) {
         alert('Registro de conductor exitoso.');
         navigate('/login');
@@ -186,86 +178,17 @@ const DriverRegister = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
-              <input 
-                type="text" 
-                name="first_name" 
-                placeholder="Nombres" 
-                value={formData.first_name} 
-                onChange={handleChange} 
-                className="input" 
-              />
-              <input 
-                type="text" 
-                name="last_name" 
-                placeholder="Apellidos" 
-                value={formData.last_name} 
-                onChange={handleChange} 
-                className="input" 
-              />
+              <input type="text" name="first_name" placeholder="Nombres" value={formData.first_name} onChange={handleChange} className="input" />
+              <input type="text" name="last_name" placeholder="Apellidos" value={formData.last_name} onChange={handleChange} className="input" />
             </div>
 
-            <input 
-              type="text" 
-              name="username" 
-              placeholder="Nombre de usuario" 
-              value={formData.username} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="email" 
-              name="email" 
-              placeholder="Correo electrónico" 
-              value={formData.email} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="text" 
-              name="personal_id" 
-              placeholder="Documento de identidad" 
-              value={formData.personal_id} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="text" 
-              name="address" 
-              placeholder="Dirección" 
-              value={formData.address} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="text" 
-              name="phone" 
-              placeholder="Teléfono" 
-              value={formData.phone} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="text" 
-              name="code" 
-              placeholder="Código universitario" 
-              value={formData.code} 
-              onChange={handleChange} 
-              className="input" 
-            />
-
-            <input 
-              type="password" 
-              name="password" 
-              placeholder="Contraseña" 
-              value={formData.password} 
-              onChange={handleChange} 
-              className="input" 
-            />
+            <input type="text" name="username" placeholder="Nombre de usuario" value={formData.username} onChange={handleChange} className="input" />
+            <input type="email" name="email" placeholder="Correo electrónico" value={formData.email} onChange={handleChange} className="input" />
+            <input type="text" name="personal_id" placeholder="Documento de identidad" value={formData.personal_id} onChange={handleChange} className="input" />
+            <input type="text" name="address" placeholder="Dirección" value={formData.address} onChange={handleChange} className="input" />
+            <input type="text" name="phone" placeholder="Teléfono" value={formData.phone} onChange={handleChange} className="input" />
+            <input type="text" name="code" placeholder="Código universitario (opcional)" value={formData.code} onChange={handleChange} className="input" />
+            <input type="password" name="password" placeholder="Contraseña" value={formData.password} onChange={handleChange} className="input" />
 
             <Combobox 
               value={verifiedColleges.find(c => c.college_id == formData.college) || null} 
@@ -277,7 +200,7 @@ const DriverRegister = () => {
                   className="input"
                   displayValue={(college) => college?.name || ''}
                   onChange={(event) => {
-                    const filtered = verifiedColleges.filter(college => 
+                    const filtered = verifiedColleges.filter(college =>
                       college.name.toLowerCase().includes(event.target.value.toLowerCase())
                     );
                     setFilteredColleges(event.target.value === '' ? verifiedColleges : filtered);
@@ -310,7 +233,7 @@ const DriverRegister = () => {
                               {college.name}
                             </span>
                             {selected && (
-                              <span className={`absolute inset-y-0 right-4 flex items-center`}>
+                              <span className="absolute inset-y-0 right-4 flex items-center">
                                 <CheckIcon className="w-5 h-5 text-[#8A20A7]" aria-hidden="true" />
                               </span>
                             )}
@@ -359,10 +282,7 @@ const DriverRegister = () => {
                         <Upload className="mx-auto h-12 w-12 text-purple-400" />
                       </div>
                       <div className="flex text-sm text-gray-600 justify-center">
-                        <label
-                          htmlFor="file-upload"
-                          className="relative cursor-pointer bg-white rounded-md font-medium text-[#8A20A7] hover:text-purple-500 focus-within:outline-none"
-                        >
+                        <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-[#8A20A7] hover:text-purple-500 focus-within:outline-none">
                           <span>Sube archivos</span>
                           <input
                             id="file-upload"
