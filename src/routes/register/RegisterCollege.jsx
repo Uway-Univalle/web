@@ -30,7 +30,6 @@ const CollegeRegister = () => {
     if (file) {
       setFormData(prev => ({ ...prev, logo_img: file }));
       
-      // Crear preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
@@ -103,7 +102,7 @@ const CollegeRegister = () => {
       });
       if (res.status === 201) {
         alert('Institución registrada exitosamente.');
-        navigate('/'); // O redirige a donde sea apropiado
+        navigate('/');
       }
     } catch (err) {
       console.error(err);

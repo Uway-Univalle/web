@@ -4,7 +4,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { FaCar, FaRoute, FaMapMarkerAlt, FaCompass, FaSignOutAlt } from 'react-icons/fa';
 
-// Constantes para tipos y categorías de vehículos
 const VEHICLE_TYPES = {
   VAN: 1,
   BIKE: 2,
@@ -20,7 +19,6 @@ const VEHICLE_CATEGORIES = {
   INTERMUNICIPAL: 3,
 };
 
-// Configuración de iconos para Leaflet
 const iconRetina = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png';
 const icon = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png';
 const shadow = 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png';
@@ -33,7 +31,6 @@ L.Icon.Default.mergeOptions({
 });
 
 const DriverDashboard = () => {
-  // Estados generales
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('trips');
@@ -41,7 +38,6 @@ const DriverDashboard = () => {
   const username = userData?.first_name || 'Conductor';
   const userId = userData?.id;
 
-  // Estados para vehículos
   const [vehicles, setVehicles] = useState([]);
   const [newVehicle, setNewVehicle] = useState({
     capacity: '',
@@ -53,7 +49,6 @@ const DriverDashboard = () => {
     vehicle_category: ''
   });
 
-  // Estados para viajes
   const [trips, setTrips] = useState([]);
   const [routes, setRoutes] = useState([]);
   const [newTrip, setNewTrip] = useState({
@@ -62,7 +57,6 @@ const DriverDashboard = () => {
     vehicle: ''
   });
 
-  // Estados para el mapa y rutas
   const [points, setPoints] = useState([]);
   const [drawing, setDrawing] = useState(false);
   const [optimizedRoute, setOptimizedRoute] = useState([]);
@@ -72,13 +66,11 @@ const DriverDashboard = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [shouldFollow, setShouldFollow] = useState(true);
   
-  // Referencias
   const mapContainerRef = useRef(null);
   const mapInstance = useRef(null);
   const markersLayer = useRef(L.layerGroup());
   const routeLayer = useRef(L.layerGroup());
 
-  // Inicializar mapa
   useEffect(() => {
     if (activeTab === 'routes' && drawing && !mapInstance.current && mapContainerRef.current) {
       mapInstance.current = L.map(mapContainerRef.current).setView(
@@ -114,7 +106,6 @@ const DriverDashboard = () => {
     };
   }, [activeTab, drawing]);
 
-  // Actualizar marcadores
   useEffect(() => {
     if (!mapInstance.current) return;
 
@@ -146,7 +137,6 @@ const DriverDashboard = () => {
     }
   }, [points, currentLocation]);
 
-  // Actualizar ruta optimizada
   useEffect(() => {
     if (!mapInstance.current || optimizedRoute.length < 2) return;
 
@@ -155,13 +145,11 @@ const DriverDashboard = () => {
     L.polyline(latLngs, { color: '#7C3AED', weight: 4 }).addTo(routeLayer.current);
   }, [optimizedRoute]);
 
-  // Seguir ubicación
   useEffect(() => {
     if (!mapInstance.current || !currentLocation || !shouldFollow) return;
     mapInstance.current.setView([currentLocation.latitude, currentLocation.longitude], 13);
   }, [currentLocation, shouldFollow]);
 
-  // Obtener ubicación
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
@@ -177,7 +165,6 @@ const DriverDashboard = () => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // Cargar datos
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -187,11 +174,9 @@ const DriverDashboard = () => {
           api.get('/routes/')
         ]);
         
-        // Filtrar vehículos por user_id igual al id del usuario
         const userVehicles = vehiclesRes.data.filter(vehicle => vehicle.user_id === userId);
         setVehicles(userVehicles);
         
-        // Filtrar viajes por driver igual al id del usuario
         const userTrips = tripsRes.data.filter(trip => trip.driver === userId);
         setTrips(userTrips);
         
@@ -209,7 +194,6 @@ const DriverDashboard = () => {
     }
   }, [userId]);
 
-  // Optimizar ruta
   const getOptimizedRoute = async () => {
     if (points.length < 2) {
       setError('Se necesitan al menos dos puntos');
@@ -232,7 +216,6 @@ const DriverDashboard = () => {
     }
   };
 
-  // Registrar vehículo
   const handleAddVehicle = async () => {
     try {
       const response = await api.post('/vehicles/', {
@@ -264,7 +247,6 @@ const DriverDashboard = () => {
     }
   };
 
-  // Programar viaje
   const handleAddTrip = async () => {
     try {
       const response = await api.post('/trips/', {
@@ -288,7 +270,6 @@ const DriverDashboard = () => {
     }
   };
 
-  // Guardar ruta
   const handleSaveRoute = async () => {
     if (!routeName.trim()) {
       setError('Ingresa un nombre para la ruta');
@@ -320,7 +301,6 @@ const DriverDashboard = () => {
     }
   };
 
-  // Cerrar sesión
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');

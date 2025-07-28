@@ -14,7 +14,7 @@ const CollegeAdminDashboard = () => {
   const [endDate, setEndDate] = useState(new Date());
   const [reportMessage, setReportMessage] = useState('');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [userDocuments, setUserDocuments] = useState({}); // {userId: [documents]}
+  const [userDocuments, setUserDocuments] = useState({});
 
   const username = JSON.parse(localStorage.getItem('userData'))?.first_name || 'Administrador';
   const userCollegeId = JSON.parse(localStorage.getItem('userData'))?.college;
@@ -29,12 +29,10 @@ const CollegeAdminDashboard = () => {
   useEffect(() => {
     const fetchUnverifiedData = async () => {
       try {
-        // Obtener usuarios no verificados
         const usersResponse = await api.get('/users/unverified/');
         const filteredUsers = usersResponse.data.filter(user => user.college === userCollegeId);
         setUsers(filteredUsers);
 
-        // Obtener vehículos no verificados
         const vehiclesResponse = await api.get('/vehicles/unverified/');
         const filteredVehicles = vehiclesResponse.data;
         setVehicles(filteredVehicles);
@@ -51,7 +49,6 @@ const CollegeAdminDashboard = () => {
     fetchUnverifiedData();
   }, [userCollegeId]);
 
-  // Función para obtener documentos de un usuario
   const fetchUserDocuments = async (userId) => {
     try {
       const response = await api.get(`/user_documents/${userId}/`);
@@ -68,7 +65,6 @@ const CollegeAdminDashboard = () => {
     }
   };
 
-  // Función para manejar la descarga de documentos
   const handleDownloadDocument = (presignedUrl, fileName) => {
     const link = document.createElement('a');
     link.href = presignedUrl;

@@ -9,7 +9,6 @@ const Login = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Suponiendo que usas localStorage para guardar el token
     const token = localStorage.getItem('authToken');
     if (token) {
       navigate('/dashboard');

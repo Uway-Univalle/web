@@ -4,7 +4,6 @@ const api = axios.create({
   baseURL: 'http://localhost:8000/api',
 });
 
-// Interceptor para añadir el token de acceso (access token)
 api.interceptors.request.use((config) => {
   const accessToken = localStorage.getItem('authToken');
   if (accessToken) {
@@ -15,7 +14,6 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Interceptor para manejar errores 401 (token expirado)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -25,7 +23,6 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        // Intentar refrescar el token
         const refreshToken = localStorage.getItem('refreshToken');
         const response = await axios.post('http://localhost:8000/api/login/refresh/', {
           refresh: refreshToken
@@ -36,7 +33,6 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Si el refresh falla, redirigir a login
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('userData');

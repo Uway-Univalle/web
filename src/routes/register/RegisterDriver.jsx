@@ -117,14 +117,12 @@ const DriverRegister = () => {
 
     const formDataToSend = new FormData();
 
-    // Agregar campos de texto
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== 'attachments') {
         formDataToSend.append(key, value);
       }
     });
 
-    // Agregar archivos adjuntos
     formData.attachments.forEach(file => {
       formDataToSend.append('attachments', file);
     });

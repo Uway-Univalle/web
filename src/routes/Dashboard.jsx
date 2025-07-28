@@ -10,7 +10,6 @@ const Dashboard = () => {
   const userData = JSON.parse(localStorage.getItem('userData'));
 
   useEffect(() => {
-    // Si no hay usuario logueado, redirige al login
     if (!userData) {
       navigate('/login');
     }
@@ -19,7 +18,7 @@ const Dashboard = () => {
   console.log(userData)
 
   if (!userData) {
-    return null; // O un spinner de carga
+    return null;
   }
 
   switch(userData.user_type) {
