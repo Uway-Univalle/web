@@ -26,7 +26,7 @@ function App() {
               Sé un conductor
             </button>
           </a>
-          <a href="/register-user">
+          <a href="/register-passanger">
             <button className="bg-[#8A20A7] text-white font-semibold py-2 px-6 rounded-md w-56 hover:bg-[#8A20A7]">
               ¡Viaja con nosotros!
             </button>

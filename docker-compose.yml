@@ -1,0 +1,6 @@
+services:
+  vite-app:
+    build: .
+    ports:
+      - "3000:80"
+    container_name: vite-react-app
